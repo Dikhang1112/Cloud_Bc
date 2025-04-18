@@ -24,7 +24,7 @@ def transform_data(records, headers):
         return [], []
 
     def clean_value(value):
-        """Làm sạch giá trị: giữ ký tự Unicode, loại bỏ ký tự đặc biệt không mong muốn, xử lý số và giá trị bất thường"""
+        """Làm sạch giá trị: giữ ký tự Unicode, thêm khoảng trắng khi loại bỏ ký tự đặc biệt, xử lý số và giá trị bất thường"""
         if not isinstance(value, str):
             value = str(value)
 
@@ -35,8 +35,8 @@ def transform_data(records, headers):
         # Chuẩn hóa Unicode về dạng NFKC (giữ dấu tiếng Việt)
         value = unicodedata.normalize('NFKC', value)
 
-        # Loại bỏ ký tự đặc biệt, giữ chữ, số, khoảng trắng, và ký tự Unicode tiếng Việt
-        value = re.sub(r'[^\w\s]', '', value, flags=re.UNICODE)
+        # Thay thế ký tự đặc biệt bằng khoảng trắng để giữ tách từ
+        value = re.sub(r'[^\w\s]', ' ', value, flags=re.UNICODE)
 
         # Loại bỏ khoảng trắng thừa
         value = ' '.join(value.strip().split())

@@ -23,8 +23,10 @@ def transform_data(records, headers):
         logger.warning("No records or headers provided for transformation")
         return [], []
 
+
     def clean_value(value, header=None):
         """Làm sạch giá trị: giữ ký tự Unicode, thêm khoảng trắng khi loại bỏ ký tự đặc biệt, xử lý số, ngày sinh và giá trị bất thường"""
+
         if not isinstance(value, str):
             value = str(value)
 
@@ -72,8 +74,6 @@ def transform_data(records, headers):
             # Nếu không khớp với bất kỳ định dạng nào, trả về rỗng
             logger.warning(f"Unrecognized date format for {header}: {value}")
             return ''
-
-        # Thay thế ký tự đặc biệt bằng khoảng trắng để giữ tách từ (ngoại trừ ngày sinh)
         value = re.sub(r'[^\w\s]', ' ', value, flags=re.UNICODE)
 
         # Loại bỏ khoảng trắng thừa

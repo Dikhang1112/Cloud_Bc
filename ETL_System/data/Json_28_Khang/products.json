@@ -3,15 +3,15 @@
     {
       "id": "1",
       "productName": "Laptop Dell XPS 13",
-      "category": "Electronics",
+      "category": "Electronics @@@@",
       "price": 1200.50,
       "stockQuantity": 25,
-      "supplier": "Dell Inc.",
+      "supplier": "Dell Inc   &&&&",
       "lastUpdated": "2023-10-15"
     },
     {
       "id": "2",
-      "productName": "Smartphone Samsung S23",
+      "productName": "Smartphone Samsung S23 !!!!!!!!!!  ",
       "category": "Electronics",
       "price": 899.99,
       "stockQuantity": 50,
@@ -20,7 +20,7 @@
     },
     {
       "id": "3",
-      "productName": "Headphones Sony WH-1000XM5",
+      "productName": "Headphones /////// Sony WH-1000XM5",
       "category": "Accessories",
       "price": -150.00,  
       "stockQuantity": 10,
@@ -29,7 +29,7 @@
     },
     {
       "id": "4",
-      "productName": "Desk Chair Ergonomic",
+      "productName": "Desk            Chair Ergonomic",
       "category": "Furniture",
       "price": 250.75,
       "stockQuantity": -5,  
@@ -38,7 +38,7 @@
     },
     {
       "id": "5",
-      "productName": "Wireless Mouse Logitech",
+      "productName": "Wireless  %$#Mouse Logitech",
       "category": "Accessories",
       "price": 45.99,
       "stockQuantity": 100,
@@ -68,7 +68,7 @@
       "productName": "Table Lamp LED",
       "category": "Home Decor",
       "price": 29.99,
-      "stockQuantity": 200,
+      "stockQuantity": -200,
       "supplier": "Philips",
       "lastUpdated": "2026-05-20"  
     }

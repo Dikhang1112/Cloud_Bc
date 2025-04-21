@@ -16,18 +16,18 @@ def transform_data_api(data):
     Returns:
         list: Danh sách dữ liệu đã được chuẩn hóa.
     """
-    # Kiểm tra dữ liệu đầu
+    # Kiểm tra dữ liệu đầu vào
     if not isinstance(data, list):
-        logger.error("Input data must be a list")
+        logger.error("Dữ liệu đầu vào phải là một danh sách")
         return []
 
     if not data:
-        logger.warning("No data to transform")
+        logger.warning("Không có dữ liệu để chuẩn hóa")
         return []
 
     # Kiểm tra tất cả phần tử là dictionary
     if not all(isinstance(item, dict) for item in data):
-        logger.error("All items in data must be dictionaries")
+        logger.error("Tất cả phần tử trong dữ liệu phải là dictionary")
         return []
 
     # Xử lý trùng lặp ID (nếu có trường 'id')
@@ -39,7 +39,7 @@ def transform_data_api(data):
             unique_data.append(item)
             continue
         if item_id in seen_ids:
-            logger.warning(f"Duplicate ID found and removed: {item_id}")
+            logger.warning(f"Phát hiện và xóa ID trùng lặp: {item_id}")
             continue
         seen_ids.add(item_id)
         unique_data.append(item)
@@ -56,6 +56,11 @@ def transform_data_api(data):
         # Chuẩn hóa các trường
         for key in transformed_item:
             value = transformed_item.get(key, "")
+
+            # Bảo vệ trường 'id', giữ nguyên giá trị gốc
+            if key.lower() == "id":
+                transformed_item[key] = value
+                continue
 
             # Chuẩn hóa các trường có thể là ngày (nếu tên trường chứa 'date' hoặc 'Date')
             if "date" in key.lower():
@@ -77,14 +82,14 @@ def transform_data_api(data):
                     # Kiểm tra ngày trong tương lai
                     if date_obj > current_date:
                         logger.warning(
-                            f"Future date found for {key} in item {item.get('id', 'unknown')}: {date_value}. Setting to current date.")
+                            f"Phát hiện ngày trong tương lai cho {key} trong mục {item.get('id', 'không xác định')}: {date_value}. Đặt thành ngày hiện tại.")
                         transformed_item[key] = "2025-04-19"
                     else:
                         transformed_item[key] = date_value
                 else:
                     # Nếu không parse được với bất kỳ định dạng nào, đặt thành chuỗi rỗng
                     logger.warning(
-                        f"Invalid date format for {key} in item {item.get('id', 'unknown')}: {date_value}. Setting to empty.")
+                        f"Định dạng ngày không hợp lệ cho {key} trong mục {item.get('id', 'không xác định')}: {date_value}. Đặt thành rỗng.")
                     transformed_item[key] = ""
                 continue
 
@@ -100,7 +105,7 @@ def transform_data_api(data):
                 num_value = float(value_str)
                 if num_value < 0:
                     logger.warning(
-                        f"Negative number found for {key} in item {item.get('id', 'unknown')}: {num_value}. Converting to positive.")
+                        f"Phát hiện số âm cho {key} trong mục {item.get('id', 'không xác định')}: {num_value}. Chuyển thành số dương.")
                     num_value = abs(num_value)
                 transformed_item[key] = str(num_value)
                 continue
@@ -120,5 +125,5 @@ def transform_data_api(data):
 
         transformed_data.append(transformed_item)
 
-    logger.info(f"Transformed {len(transformed_data)} items")
+    logger.info(f"Đã chuẩn hóa {len(transformed_data)} mục")
     return transformed_data

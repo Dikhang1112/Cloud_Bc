@@ -3,97 +3,65 @@
 Hệ thống ETL
 {% endblock %}
 {% block content %}
-<style>
-    body {
-        background-color: #f8f9fa;
-    }
-    .container {
-        margin-top: 30px;
-    }
-    .card {
-        margin-bottom: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .card-body {
-        padding: 20px;
-    }
-    .card-title {
-        font-weight: bold;
-        color: #333;
-    }
-    .result-section {
-        min-height: 400px;
-        background-color: #fff;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        padding: 15px;
-        white-space: pre-wrap;
-    }
-    .btn-extract {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-    .btn-transform {
-        background-color: #ffc107;
-        border-color: #ffc107;
-        color: #333;
-    }
-    .btn-load {
-        background-color: #198754;
-        border-color: #198754;
-    }
-    .form-label {
-        font-weight: bold;
-        color: #333;
-    }
-    .btn-transform:disabled,
-    .btn-load:disabled {
-        background-color: #d3d3d3;
-        border-color: #d3d3d3;
-        color: #666;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
 
-<div class="container">
-    <h2 class="text-center mb-4"><i class="fas fa-file-import me-2"></i>Hệ thống ETL</h2>
+<div class="container mt-5">
+    <h2 class="text-center mb-5 title"><i class="fas fa-sync-alt me-2"></i>Hệ thống ETL</h2>
     <div class="row">
         <!-- Cột bên trái: Form nhập liệu -->
-        <div class="col-md-6">
-            <div class="card">
+        <div class="col-lg-6 mb-4">
+            <!-- Form Word/PDF -->
+            <div class="card shadow-custom mb-4">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-file-alt me-2"></i>Chọn file Word hoặc PDF</h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-file-alt me-2"></i>Chọn file Word hoặc PDF</h5>
                     <form method="POST" enctype="multipart/form-data" id="wordPdfForm"
                           data-extract-url="{{ url_for('views.extract_data') }}"
                           data-transform-url="{{ url_for('views.transform_data') }}"
                           data-load-url="{{ url_for('views.load_data') }}">
                         <div class="mb-3">
                             <label for="word_pdf_file" class="form-label"><i class="fas fa-upload me-2"></i>Chọn file (hỗ trợ nhiều file):</label>
-                            <input type="file" class="form-control" id="word_pdf_file" name="file" accept=".docx,.pdf" multiple>
+                            <input type="file" class="form-control input-custom" id="word_pdf_file" name="file" accept=".docx,.pdf" multiple>
                         </div>
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-primary btn-extract" onclick="extractData('wordPdfForm')">Extract</button>
-                            <button type="button" class="btn btn-warning btn-transform" onclick="transformData('wordPdfForm')" disabled>Transform</button>
-                            <button type="button" class="btn btn-success btn-load" onclick="loadData('wordPdfForm')" disabled>Load</button>
+                        <div class="d-flex gap-3">
+                            <button type="button" class="btn btn-extract btn-custom flex-fill" onclick="extractData('wordPdfForm')">
+                                <i class="fas fa-play me-2"></i>Trích Xuất
+                            </button>
+                            <button type="button" class="btn btn-transform btn-custom flex-fill" onclick="transformData('wordPdfForm')" disabled>
+                                <i class="fas fa-cogs me-2"></i>Chuẩn Hóa
+                            </button>
+                            <button type="button" class="btn btn-load btn-custom flex-fill" onclick="loadData('wordPdfForm')" disabled>
+                                <i class="fas fa-database me-2"></i>Lưu
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
-            <div class="card">
+            <!-- Form Excel/CSV -->
+            <div class="card shadow-custom">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-file-alt me-2"></i>Chọn file Excel hoặc CSV</h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-file-alt me-2"></i>Chọn file Excel hoặc CSV</h5>
                     <form method="POST" enctype="multipart/form-data" id="excelCsvForm"
                           data-extract-url="{{ url_for('views.extract_excel_csv') }}"
                           data-transform-url="{{ url_for('views.transform_excel_csv') }}"
                           data-load-url="{{ url_for('views.load_excel_csv') }}">
                         <div class="mb-3">
                             <label for="excel_csv_file" class="form-label"><i class="fas fa-upload me-2"></i>Chọn file (hỗ trợ nhiều file):</label>
-                            <input type="file" class="form-control" id="excel_csv_file" name="file" accept=".xlsx,.xls,.csv" multiple>
+                            <input type="file" class="form-control input-custom" id="excel_csv_file" name="file" accept=".xlsx,.xls,.csv" multiple>
                         </div>
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-primary btn-extract" onclick="extractData('excelCsvForm')">Extract</button>
-                            <button type="button" class="btn btn-warning btn-transform" onclick="transformData('excelCsvForm')" disabled>Transform</button>
-                            <button type="button" class="btn btn-success btn-load" onclick="loadData('excelCsvForm')" disabled>Load</button>
+                        <div class="d-flex gap-3">
+                            <button type="button" class="btn btn-extract btn-custom flex-fill" onclick="extractData('excelCsvForm')">
+                                <i class="fas fa-play me-2"></i>Trích Xuất
+                            </button>
+                            <button type="button" class="btn btn-transform btn-custom flex-fill" onclick="transformData('excelCsvForm')" disabled>
+                                <i class="fas fa-cogs me-2"></i>Chuẩn Hóa
+                            </button>
+                            <button type="button" class="btn btn-load btn-custom flex-fill" onclick="loadData('excelCsvForm')" disabled>
+                                <i class="fas fa-database me-2"></i>Lưu
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -101,14 +69,18 @@ Hệ thống ETL
         </div>
 
         <!-- Cột bên phải: Kết quả -->
-        <div class="col-md-6">
-            <h5><i class="fas fa-file-export me-2"></i>Kết quả xử lý</h5>
-            <div class="result-section" id="result-section">
-                {% if result %}
-                    <pre>{{ result }}</pre>
-                {% else %}
-                    <p>Chưa có dữ liệu để hiển thị.</p>
-                {% endif %}
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-custom">
+                <div class="card-header bg-gradient-secondary text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-file-export me-2"></i>Kết quả xử lý</h5>
+                </div>
+                <div class="card-body result-section" id="result-section">
+                    {% if result %}
+                        <pre class="result-pre">{{ result }}</pre>
+                    {% else %}
+                        <p class="text-muted no-data-message">Chưa có dữ liệu để hiển thị.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -119,5 +91,6 @@ Hệ thống ETL
      data-step="{{ step|default('') }}"
      style="display: none;"></div>
 
-<script src="{{ url_for('static', filename='index.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='index1.js') }}"></script>
 {% endblock %}

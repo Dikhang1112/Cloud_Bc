@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}
+AWS S3 ETL Manager
+{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-5 title">AWS S3 ETL Manager</h1>
+
+    <div class="row">
+        <!-- Form nhập credentials và chọn file từ S3 -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-custom h-100">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0">Chọn File từ S3</h5>
+                </div>
+                <div class="card-body">
+                    <form id="s3SelectForm">
+                        <div class="mb-3">
+                            <label for="accessKey" class="form-label">AWS Access Key ID</label>
+                            <input type="text" class="form-control input-custom" id="accessKey" placeholder="Nhập Access Key ID" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="secretKey" class="form-label">AWS Secret Access Key</label>
+                            <input type="password" class="form-control input-custom" id="secretKey" placeholder="Nhập Secret Access Key" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="bucketSelect" class="form-label">S3 Bucket</label>
+                            <select class="form-control select-custom" id="bucketSelect">
+                                <option value="">Chọn bucket</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fileSelect" class="form-label">S3 File</label>
+                            <select class="form-control select-custom" id="fileSelect">
+                                <option value="">Chọn file</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 btn-custom">Tải Danh Sách Bucket</button>
+                    </form>
+                    <div class="mt-4 d-flex justify-content-between gap-3">
+                        <button id="extractBtn" class="btn btn-info btn-custom flex-fill" disabled>Trích Xuất</button>
+                        <button id="transformBtn" class="btn btn-warning btn-custom flex-fill" disabled>Chuẩn Hóa</button>
+                        <button id="loadBtn" class="btn btn-success btn-custom flex-fill" disabled>Lưu Lên S3</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form hiển thị dữ liệu -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-custom h-100">
+                <div class="card-header bg-gradient-secondary text-white">
+                    <h5 class="mb-0">Xem Trước Dữ Liệu</h5>
+                </div>
+                <div class="card-body">
+                    <div id="dataPreview" class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr id="tableHeader"></tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Liên kết CSS và JS tùy chỉnh -->
+<link rel="stylesheet" href="{{ url_for('static', filename='awsS3.css') }}">
+<script src="{{ url_for('static', filename='index4.js') }}"></script>
+{% endblock %}

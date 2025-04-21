@@ -4,7 +4,7 @@ from .views import views
 from .auth import auth
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__,static_folder='static')
     app.config['SECRET_KEY'] = 'Khang dep zai vl'
 
     # Cấu hình kết nối database
@@ -23,12 +23,7 @@ def create_app():
         return connection
 
     app.get_db_connection = get_db_connection
-
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
-
-    # Debug: In tất cả các endpoint
-    with app.app_context():
-        print(app.url_map)
 
     return app

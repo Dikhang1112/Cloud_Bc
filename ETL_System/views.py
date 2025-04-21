@@ -1,9 +1,24 @@
+import boto3
+import pymysql
 from flask import Blueprint, render_template, current_app, request, session, jsonify
 from werkzeug.utils import secure_filename
 import os
+import logging
+from ETL_System.resolve.extract_S3 import extract_s3
+from ETL_System.resolve.load_S3 import load_s3
+from ETL_System.resolve.transform_S3 import transform_s3
 from resolve.load_file1 import extract_files_task, transform_data_task, load_data_task
 from resolve.load_file2 import extract_file2, transform_file2, load_file2
+from resolve.extract_api import extract_data_api
+from resolve.transform_api import transform_data_api
+from  resolve.load_api import load_data_api
+from resolve.extract_database import extract_data_database
+from resolve.transform_database import transform_data_database
+from resolve.load_database import load_data_database
 
+# Cấu hình logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 views = Blueprint('views', __name__)
 
 @views.route('/')
@@ -213,3 +228,223 @@ def load_excel_csv():
         })
     except Exception as e:
         return jsonify({'error': f"Lỗi khi lưu dữ liệu: {str(e)}"}), 500
+
+
+@views.route('/api/extract', methods=['POST'])
+def extract():
+    data = request.get_json()
+    api_url = data.get('apiUrl')
+    if not api_url:
+        logger.error("API URL is required")
+        return jsonify({"status": "error", "message": "API URL is required"}), 400
+    result = extract_data_api(api_url)
+    return jsonify(result)
+
+@views.route('/api/transform', methods=['POST'])
+def transform():
+    data = request.get_json()
+    records = data.get('data')
+    if not records:
+        logger.error("No data provided for transformation")
+        return jsonify({"status": "error", "message": "No data to transform"}), 400
+    transformed_records = transform_data_api(records)
+    return jsonify({"status": "success", "data": transformed_records})
+
+@views.route('/api/load', methods=['POST'])
+def load():
+    data = request.get_json()
+    records = data.get('data')
+    table_name = data.get('tableName')
+    if not records:
+        logger.error("No data provided for loading")
+        return jsonify({"status": "error", "message": "No data to load"}), 400
+    if not table_name:
+        logger.error("Table name is required for loading")
+        return jsonify({"status": "error", "message": "Table name is required"}), 400
+    result = load_data_api(records, table_name)
+    return jsonify(result)
+
+@views.route('/api/databases', methods=['GET'])
+def get_databases():
+    conn = None
+    cursor = None
+    try:
+        conn = current_app.get_db_connection()
+        logger.info("Successfully connected to MySQL")
+        cursor = conn.cursor()  # DictCursor từ __init__.py
+        logger.info("Executing SHOW DATABASES")
+        cursor.execute("SHOW DATABASES")
+        raw_data = cursor.fetchall()
+        logger.info(f"Raw data from SHOW DATABASES: {raw_data}")
+        if not raw_data:
+            logger.warning("No databases returned from SHOW DATABASES")
+            return jsonify({"status": "success", "databases": []})
+
+        databases = [row['Database'] for row in raw_data]
+        logger.info(f"Fetched {len(databases)} databases: {databases}")
+        return jsonify({"status": "success", "databases": databases})
+    except pymysql.Error as mysql_err:
+        logger.error(f"MySQL error fetching databases: {mysql_err.args[1]} (Error code: {mysql_err.args[0]})")
+        return jsonify({"status": "error", "message": f"MySQL error: {mysql_err.args[1]}"}), 500
+    except Exception as e:
+        logger.error(f"Unexpected error fetching databases: {str(e)} (Type: {type(e).__name__})")
+        return jsonify({"status": "error", "message": f"Unexpected error: {str(e)}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+            logger.info("Cursor closed")
+        if conn:
+            conn.close()
+            logger.info("MySQL connection closed")
+
+@views.route('/api/tables', methods=['POST'])
+def get_tables():
+    conn = None
+    cursor = None
+    data = request.get_json()
+    database_name = data.get('database')
+    if not database_name:
+        logger.error("Database name is required for fetching tables")
+        return jsonify({"status": "error", "message": "Database name is required"}), 400
+    try:
+        logger.info(f"Fetching tables for database: {database_name}")
+        conn = current_app.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(f"USE {database_name}")
+        cursor.execute("SHOW TABLES")
+        raw_data = cursor.fetchall()
+        logger.info(f"Raw data from SHOW TABLES: {raw_data}")
+        tables = [row[f'Tables_in_{database_name}'] for row in raw_data]
+        logger.info(f"Fetched {len(tables)} tables from {database_name}: {tables}")
+        return jsonify({"status": "success", "tables": tables})
+    except pymysql.Error as mysql_err:
+        logger.error(f"MySQL error fetching tables from {database_name}: {mysql_err.args[1]} (Error code: {mysql_err.args[0]})")
+        return jsonify({"status": "error", "message": f"MySQL error: {mysql_err.args[1]}"}), 500
+    except Exception as e:
+        logger.error(f"Unexpected error fetching tables from {database_name}: {str(e)} (Type: {type(e).__name__})")
+        return jsonify({"status": "error", "message": f"Unexpected error: {str(e)}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+            logger.info("Cursor closed")
+        if conn:
+            conn.close()
+            logger.info("MySQL connection closed")
+
+@views.route('/api/extract_database', methods=['POST'])
+def extract_database():
+    data = request.get_json()
+    database_name = data.get('database')
+    table_name = data.get('table')
+    if not database_name or not table_name:
+        logger.error("Database name and table name are required for extraction")
+        return jsonify({"status": "error", "message": "Database name and table name are required"}), 400
+    result = extract_data_database(database_name, table_name)
+    return jsonify(result)
+
+@views.route('/api/transform_database', methods=['POST'])
+def transform_database():
+    data = request.get_json()
+    records = data.get('data')
+    if not records:
+        logger.error("No data provided for transformation")
+        return jsonify({"status": "error", "message": "No data to transform"}), 400
+    transformed_records = transform_data_database(records)
+    return jsonify({"status": "success", "data": transformed_records})
+
+@views.route('/api/load_database', methods=['POST'])
+def load_database():
+    data = request.get_json()
+    records = data.get('data')
+    database_name = data.get('database')
+    table_name = data.get('tableName')
+    if not records:
+        logger.error("No data provided for loading")
+        return jsonify({"status": "error", "message": "No data to load"}), 400
+    if not database_name or not table_name:
+        logger.error("Database name and table name are required for loading")
+        return jsonify({"status": "error", "message": "Database name and table name are required"}), 400
+    result = load_data_database(records, database_name, table_name)
+    return jsonify(result)
+
+
+@views.route('/get-buckets_S3', methods=['POST'])
+def get_buckets_s3():
+    try:
+        data = request.get_json()
+        if not data or 'accessKey' not in data or 'secretKey' not in data:
+            logger.error("Invalid request data: accessKey or secretKey missing")
+            return jsonify({'message': 'Invalid request: accessKey or secretKey missing'}), 400
+
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=data['accessKey'],
+            aws_secret_access_key=data['secretKey'],
+            region_name='us-east-1'
+        )
+        response = s3_client.list_buckets()
+        buckets = [bucket['Name'] for bucket in response['Buckets']]
+        logger.info(f"Retrieved buckets: {buckets}")
+        return jsonify({'buckets': buckets})
+    except Exception as e:
+        logger.error(f"Failed to list buckets: {str(e)}")
+        return jsonify({'message': f"Failed to list buckets: {str(e)}"}), 500
+
+
+@views.route('/get-files_S3', methods=['POST'])
+def get_files_s3():
+    try:
+        data = request.get_json()
+
+        if not data or 'accessKey' not in data or 'secretKey' not in data or 'bucket' not in data:
+            logger.error("Invalid request data: accessKey, secretKey, or bucket missing")
+            return jsonify({'message': 'Invalid request: accessKey, secretKey, or bucket missing'}), 400
+
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=data['accessKey'],
+            aws_secret_access_key=data['secretKey'],
+            region_name='us-east-1'
+        )
+        response = s3_client.list_objects_v2(Bucket=data['bucket'])
+        files = [obj['Key'] for obj in response.get('Contents', [])]
+        logger.info(f"Retrieved files: {files}")
+        return jsonify({'files': files})
+    except Exception as e:
+        logger.error(f"Failed to list files: {str(e)}")
+        return jsonify({'message': f"Failed to list files: {str(e)}"}), 500
+
+
+@views.route('/extract_S3', methods=['POST'])
+def extract_s3_route():
+    try:
+        data = request.get_json()
+        result = extract_s3(data['accessKey'], data['secretKey'], data['bucket'], data['fileKey'])
+        return jsonify({'data': result})
+    except Exception as e:
+        logger.error(f"Extract failed: {str(e)}")
+        return jsonify({'message': f"Extract failed: {str(e)}"}), 500
+
+
+@views.route('/transform_S3', methods=['POST'])
+def transform_s3_route():
+    try:
+        data = request.get_json()
+        logger.info(f"Received data for transform: {data}")
+        result = transform_s3(data['data'])
+        return jsonify({'data': result})
+    except Exception as e:
+        logger.error(f"Transform failed: {str(e)}")
+        return jsonify({'message': f"Transform failed: {str(e)}"}), 500
+
+
+@views.route('/load_S3', methods=['POST'])
+def load_s3_route():
+    try:
+        data = request.get_json()
+        logger.info(f"Received data for load: {data}")
+        result = load_s3(data['accessKey'], data['secretKey'], data['bucket'], data['file_path'], data['data'])
+        return jsonify({'message': 'Lưu thành công'})
+    except Exception as e:
+        logger.error(f"Load failed: {str(e)}")
+        return jsonify({'message': f"Lưu thất bại: {str(e)}"}), 500

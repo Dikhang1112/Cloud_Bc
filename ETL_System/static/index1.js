@@ -22,6 +22,43 @@ function enableButtons(formId, step) {
     }
 }
 
+// Hàm tạo bảng HTML từ headers và records
+function createTable(headers, records) {
+    if (!headers || !records || records.length === 0) {
+        return '<p class="text-muted no-data-message">Không có dữ liệu để hiển thị.</p>';
+    }
+
+    // Tạo header của bảng
+    const thead = `
+        <thead>
+            <tr>
+                ${headers.map(header => `<th>${header}</th>`).join('')}
+            </tr>
+        </thead>
+    `;
+
+    // Tạo body của bảng
+    const tbody = `
+        <tbody>
+            ${records.map(record => `
+                <tr>
+                    ${headers.map(header => `<td>${record[header] || ''}</td>`).join('')}
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+
+    // Kết hợp thành bảng hoàn chỉnh
+    return `
+        <div class="table-responsive">
+            <table class="table table-custom">
+                ${thead}
+                ${tbody}
+            </table>
+        </div>
+    `;
+}
+
 function extractData(formId) {
     const form = document.getElementById(formId);
     const fileInput = form.querySelector('input[type="file"]');
@@ -84,15 +121,12 @@ function extractData(formId) {
         formStates[formId].extractedData = data.records;
         formStates[formId].headers = data.headers;
 
-        // Hiển thị dữ liệu gốc
-        const displayContent = data.records.map(record =>
-            data.headers.map(header => `${header}: ${record[header] || ''}`).join(', ')
-        ).join('\n') || 'Không có dữ liệu để hiển thị.';
-        resultSection.innerHTML = `<pre>${displayContent}</pre>`;
+        // Hiển thị dữ liệu dưới dạng bảng
+        resultSection.innerHTML = createTable(data.headers, data.records);
 
         Swal.fire({
             title: 'Hoàn Tất!',
-            text: 'Dữ liệu đã được trích xuất. Nhấn "Transform" để chuẩn hóa dữ liệu.',
+            text: 'Dữ liệu đã được trích xuất. Nhấn "Chuẩn Hóa" để chuẩn hóa dữ liệu.',
             icon: 'success',
             confirmButtonText: 'OK'
         });
@@ -171,15 +205,12 @@ function transformData(formId) {
         formStates[formId].transformedData = data.records;
         formStates[formId].headers = data.headers;
 
-        // Hiển thị dữ liệu đã chuẩn hóa
-        const displayContent = data.records.map(record =>
-            data.headers.map(header => `${header}: ${record[header] || ''}`).join(', ')
-        ).join('\n') || 'Không có dữ liệu để hiển thị.';
-        resultSection.innerHTML = `<pre>${displayContent}</pre>`;
+        // Hiển thị dữ liệu đã chuẩn hóa dưới dạng bảng
+        resultSection.innerHTML = createTable(data.headers, data.records);
 
         Swal.fire({
             title: 'Hoàn Tất!',
-            text: 'Dữ liệu đã được chuẩn hóa. Nhấn "Load" để lưu vào cơ sở dữ liệu.',
+            text: 'Dữ liệu đã được chuẩn hóa. Nhấn "Lưu" để lưu vào cơ sở dữ liệu.',
             icon: 'success',
             confirmButtonText: 'OK'
         });
@@ -262,10 +293,10 @@ function loadData(formId) {
                     return;
                 }
 
-                const displayContent = formStates[formId].transformedData.map(record =>
-                    formStates[formId].headers.map(header => `${header}: ${record[header] || ''}`).join(', ')
-                ).join('\n');
-                resultSection.innerHTML = `<pre>${displayContent}\n\nDữ liệu đã được lưu vào cơ sở dữ liệu: ${data.table_name}</pre>`;
+                // Hiển thị dữ liệu đã lưu dưới dạng bảng và thêm thông báo
+                let tableContent = createTable(formStates[formId].headers, formStates[formId].transformedData);
+                tableContent += `<p class="mt-3 text-success">Dữ liệu đã được lưu vào cơ sở dữ liệu: ${data.table_name}</p>`;
+                resultSection.innerHTML = tableContent;
 
                 Swal.fire({
                     title: 'Hoàn Tất!',

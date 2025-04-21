@@ -7,10 +7,10 @@ def login():
     return render_template("login.html")
 
 
-@auth.route('/logout')
-def logout():
-    return render_template("signUp.html")
+@auth.route('/API')
+def newSource():
+    return render_template("apiDb.html")
 
-@auth.route('/signUp')
+@auth.route('/s3')
 def signUp():
-    return "<p> Sign up cc </p>"
+    return render_template("awsS3.html")

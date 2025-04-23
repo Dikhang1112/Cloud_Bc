@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}
+Lên Lịch ETL
+{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='schedule_etl.css') }}">
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="row mt-4">
+    <!-- Phần bên trái: Biểu mẫu nhập thông tin -->
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-cloud-upload-alt me-2"></i>Thiết Lập ETL</h5>
+            </div>
+            <div class="card-body">
+                <form id="etlForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="accessKey" class="form-label">Access Key</label>
+                        <input type="text" class="form-control" id="accessKey" placeholder="Nhập Access Key" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="secretKey" class="form-label">Secret Access Key</label>
+                        <input type="password" class="form-control" id="secretKey" placeholder="Nhập Secret Access Key" required>
+                    </div>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-success w-100" id="loadS3Btn">
+                            <i class="fas fa-sync-alt me-2"></i>Tải S3 Buckets
+                        </button>
+                    </div>
+                    <div class="mb-3">
+                        <label for="s3Buckets" class="form-label">Chọn S3 Bucket</label>
+                        <select class="form-select" id="s3Buckets" name="bucket" disabled required>
+                            <option value="">Vui lòng tải S3 Buckets trước</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="scriptFile" class="form-label">Tải Script Python</label>
+                        <input type="file" class="form-control" id="scriptFile" name="script_file" accept=".py" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="scheduleTime" class="form-label">Chọn Thời Gian Chạy Định Kỳ</label>
+                        <select class="form-select" id="scheduleTime" name="schedule_time" required>
+                            <option value="">Chọn thời gian</option>
+                            <option value="3m">3 phút</option>
+                            <option value="1h">1 giờ</option>
+                            <option value="1d">24 giờ</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-play me-2"></i>Chạy ETL Job
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phần bên phải: Dashboard thống kê -->
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Thống Kê ETL Jobs</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="reportRange" class="form-label">Chọn Khoảng Thời Gian Báo Cáo</label>
+                    <select class="form-select" id="reportRange">
+                        <option value="1d">1 ngày qua</option>
+                        <option value="7d">7 ngày qua</option>
+                        <option value="30d">30 ngày qua</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-6 text-center">
+                        <div class="card bg-success text-white mb-3">
+                            <div class="card-body">
+                                <h6>Jobs Thành Công</h6>
+                                <h3 id="successJobs">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 text-center">
+                        <div class="card bg-danger text-white mb-3">
+                            <div class="card-body">
+                                <h6>Jobs Thất Bại</h6>
+                                <h3 id="failedJobs">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <canvas id="jobChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='schedule_etl.js') }}"></script>
+{% endblock %}

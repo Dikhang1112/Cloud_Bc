@@ -9,3 +9,7 @@ def newSource():
 @auth.route('/s3')
 def signUp():
     return render_template("awsS3.html")
+
+@auth.route('/sche')
+def scheduleTemplate():
+    return  render_template("schedule.html")

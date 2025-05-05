@@ -40,7 +40,6 @@ def extract_data_database(database_name, table_name):
         cursor.execute(query)
         data = cursor.fetchall()
         logger.info(f"Extracted {len(data)} records from {table_name}: {data[:2]}")  # Log 2 bản ghi đầu tiên
-
         return {"status": "success", "data": data}
     except pymysql.Error as mysql_err:
         logger.error(f"MySQL error extracting data from {database_name}.{table_name}: {mysql_err.args[1]} (Error code: {mysql_err.args[0]})")

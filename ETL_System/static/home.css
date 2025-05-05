@@ -1,0 +1,158 @@
+/* General styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+/* Title */
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Card styles */
+.card {
+    border: none;
+    border-radius: 12px;
+    transition: transform 0.2s ease-in-out;
+    max-height: 500px; /* Giới hạn chiều cao tối đa của card */
+    overflow-y: auto; /* Kích hoạt cuộn dọc nếu nội dung vượt quá */
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.shadow-custom {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 15px 20px;
+    font-weight: 600;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(90deg, #007bff, #00c4ff);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(90deg, #6c757d, #adb5bd);
+}
+
+/* Form styles */
+.form-label {
+    font-weight: 500;
+    color: #34495e;
+}
+
+.input-custom {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    transition: border-color 0.3s ease;
+}
+
+.input-custom:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+/* Button styles */
+.btn-custom {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.btn-custom:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-custom:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-extract {
+    background-color: #17a2b8;
+    border: none;
+    color: white;
+}
+
+.btn-extract:hover:not(:disabled) {
+    background-color: #117a8b;
+}
+
+.btn-transform {
+    background-color: #ffc107;
+    border: none;
+    color: #212529;
+}
+
+.btn-transform:hover:not(:disabled) {
+    background-color: #d39e00;
+}
+
+.btn-load {
+    background-color: #28a745;
+    border: none;
+    color: white;
+}
+
+.btn-load:hover:not(:disabled) {
+    background-color: #1e7e34;
+}
+
+/* Result section */
+.result-section {
+    max-height: 1000px; /* Giới hạn chiều cao tối đa cho khu vực kết quả */
+    overflow-y: auto; /* Kích hoạt cuộn dọc nếu nội dung vượt quá */
+}
+
+.result-pre {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #495057;
+    white-space: pre-wrap;
+}
+
+/* No data message */
+.no-data-message {
+    font-style: italic;
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .title {
+        font-size: 2rem;
+    }
+
+    .btn-custom {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+
+    .card {
+        max-height: 250px; /* Giảm chiều cao tối đa trên thiết bị di động */
+    }
+
+    .result-section {
+        max-height: 300px; /* Giảm chiều cao tối đa trên thiết bị di động */
+    }
+}
